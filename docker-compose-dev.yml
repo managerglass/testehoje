@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  database:
+    container_name: managerglass
+    image: postgres:14-alpine
+    restart: always
+    user: postgres  # importante definir o usuário
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - LC_ALL=C.UTF-8
+      - POSTGRES_PASSWORD=postgres  # senha padrão
+      - POSTGRES_USER=postgres  # usuário padrão
+      - POSTGRES_DB=managerglass  # necessário porque foi configurado assim no settings
+    ports:
+      - 5433:5432  # repare na porta externa 5433
+    networks:
+      - managerglass
+
+  pgadmin:
+    container_name: managerglass_pgadmin
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - 5050:80
+    networks:
+      - managerglass
+
+  mailhog:
+    container_name: managerglass_mailhog
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: 'none'
+    ports:
+      - 1025:1025
+      - 8025:8025
+    networks:
+      - managerglass
+
+volumes:
+  pgdata:  # mesmo nome do volume externo definido na linha 10
+  pgadmin:
+
+networks:
+  managerglass:
